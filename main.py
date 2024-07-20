@@ -28,7 +28,27 @@ def todos_los_memes():
     except Exception as error:
         print(f"Error al obtener memes: {str(error)}")
         return jsonify({'message': 'No se han encontrado los memes.'}), 500
-    
+
+
+@app.route('/memes/<int:meme_id>', methods=['GET'])
+def obtener_id_meme(meme_id):
+    try:
+        meme = Meme.query.get(meme_id)
+        if meme is None:
+            return jsonify({'message': 'El meme con el ID especificado no se encontró'}), 404
+
+        meme_data = {
+            'id': meme.meme_id,
+            'imagen': meme.imagen,
+            'fecha': meme.fecha.strftime('%Y-%m-%d %H:%M:%S'),
+            'usuario_id': meme.usuario_id,
+            'plantilla_id': meme.plantilla_id
+        }
+        return jsonify(meme_data), 200
+    except Exception as error:
+        print(f"Error al obtener id del meme: {str(error)}")
+        return jsonify({'message': 'Error interno al obtener el meme'}), 500
+
 
 @app.route('/memes/', methods=['POST'])
 def crear_memes():
@@ -73,6 +93,74 @@ def crear_memes():
     except Exception as error:
         print(f"Error al crear el meme: {str(error)}")
         return jsonify({'message': 'No se ha podido crear el meme.'}), 500
+
+
+    
+@app.route('/memes/<int:meme_id>', methods=['PUT'])
+def editar_meme(meme_id):
+    try:
+        data = request.json
+
+        # Buscar el meme en la base de datos por su ID
+        meme = Meme.query.get(meme_id)
+
+        if meme:
+            # Actualizar los campos del meme según los datos proporcionados
+            if 'imagen' in data:
+                meme.imagen = data['imagen'][:300]  # Ajustar la longitud si es necesario
+            if 'usuario_id' in data:
+                meme.usuario_id = data['usuario_id']
+
+            # Verificar y actualizar el plantilla_id si existe
+            if 'plantilla_id' in data:
+                plantilla_id = data['plantilla_id']
+                plantilla = Plantilla.query.get(plantilla_id)
+                if plantilla:
+                    meme.plantilla_id = plantilla_id
+                else:
+                    return jsonify({'message': f'Plantilla con ID {plantilla_id} no encontrada'}), 404
+
+            # Guardar los cambios en la base de datos
+            db.session.commit()
+
+            # Preparar la respuesta JSON con los datos actualizados
+            meme_actualizado = {
+                'meme_id': meme.meme_id,
+                'imagen': meme.imagen,
+                'fecha': meme.fecha.strftime('%Y-%m-%d %H:%M:%S'),
+                'usuario_id': meme.usuario_id,
+                'plantilla_id': meme.plantilla_id
+            }
+
+            return jsonify(meme_actualizado), 200
+        else:
+            return jsonify({'message': 'Meme no encontrado'}), 404
+
+    except ValueError as verificacion:
+        db.session.rollback()
+        return jsonify({'message': str(verificacion)}), 400  # Bad Request
+    except Exception as error:
+        db.session.rollback()
+        print(f"Error al editar el meme: {str(error)}")
+        return jsonify({'message': 'No se ha podido editar el meme.'}), 500
+    
+
+@app.route('/memes/<int:meme_id>', methods=['DELETE'])
+def eliminar_meme(meme_id):
+    try:
+        meme = Meme.query.get(meme_id)
+        if meme is None:
+            return jsonify({'message': 'El meme con el ID especificado no se encontró'}), 404
+
+        db.session.delete(meme)
+        db.session.commit()
+
+        return jsonify({'message': 'Meme eliminado exitosamente'}), 200
+    except Exception as error:
+        print(f"Error al eliminar el meme: {str(error)}")
+        db.session.rollback()
+        return jsonify({'message': 'No se pudo eliminar el meme'}), 500
+
 
 if __name__ == '__main__':
     print('Init server....')
