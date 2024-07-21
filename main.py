@@ -1,10 +1,14 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from models import db, Meme, Plantilla, Usuario
 
 app = Flask(__name__)
 port = 5000
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres@localhost:5432/intro'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+CORS(app)
+CORS(app, supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE"])
+
 
 @app.route('/')
 def hello_world():
@@ -28,6 +32,28 @@ def todos_los_memes():
     except Exception as error:
         print(f"Error al obtener memes: {str(error)}")
         return jsonify({'message': 'No se han encontrado los memes.'}), 500
+    
+
+@app.route('/plantillas/', methods=['GET'])
+def obtener_plantillas():
+    try:
+        plantillas = Plantilla.query.all()  # Asume que Plantilla es tu modelo de datos para las plantillas de memes
+        plantillas_data = []
+        
+        for plantilla in plantillas:
+            plantilla_data = {
+                'id': plantilla.plantilla_id,
+                'nombre': plantilla.nombre_plantilla,
+                'imagen': plantilla.imagen,
+                'usuario_id': plantilla.usuario_id
+            }
+            plantillas_data.append(plantilla_data)
+
+        return jsonify(plantillas_data), 200
+
+    except Exception as error:
+        print(f"Error al obtener plantillas de memes: {str(error)}")
+        return jsonify({'message': 'Error interno al obtener las plantillas de memes'}), 500
 
 
 @app.route('/memes/<int:meme_id>', methods=['GET'])
