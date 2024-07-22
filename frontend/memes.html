@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <title>Memes App - Todos los Memes</title>
+</head>
+<body>
+
+    <header class="section">
+        <div class="container">
+            <h1 class="title">Todos los Memes</h1>
+            <p>Aquí puedes ver todos los memes disponibles.</p>
+        </div>
+    </header>
+
+    <main>
+
+        <section id="todos-los-memes" class="section">
+            <div class="container">
+                <div id="memes-list" class="columns is-multiline">
+                    <!-- Aquí se generarán dinámicamente los memes usando JavaScript -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>© 2024 Página de Memes. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchMemes();
+        });
+
+        function fetchMemes() {
+            fetch('http://localhost:5000/memes/')  // Asegúrate de que la URL sea correcta
+                .then(response => response.json())
+                .then(memes => {
+                    displayMemes(memes);
+                })
+                .catch(error => {
+                    console.error('Error al obtener los memes:', error);
+                });
+        }
+
+        function displayMemes(memes) {
+            const memesList = document.getElementById('memes-list');
+            memesList.innerHTML = '';
+
+            memes.forEach(meme => {
+                const memeColumn = document.createElement('div');
+                memeColumn.classList.add('column', 'is-4'); // Columna de Bulma para ocupar 1/3 del ancho
+
+                const memeBox = document.createElement('div');
+                memeBox.classList.add('box'); // Box de Bulma para estilizar el meme
+
+                const imagenElement = document.createElement('img');
+                imagenElement.classList.add('image', 'is-4by3', 'is-fullwidth');
+                imagenElement.src = meme.imagen;
+                imagenElement.alt = `Meme ${meme.id}`;
+
+                const fechaElement = document.createElement('p');
+                fechaElement.classList.add('subtitle', 'is-6');
+                fechaElement.textContent = `Fecha: ${meme.fecha}`;
+
+                const usuarioElement = document.createElement('p');
+                usuarioElement.classList.add('subtitle', 'is-6');
+                usuarioElement.textContent = `Usuario ID: ${meme.usuario_id}`;
+
+                memeBox.appendChild(imagenElement);
+                memeBox.appendChild(fechaElement);
+                memeBox.appendChild(usuarioElement);
+
+                memeColumn.appendChild(memeBox);
+                memesList.appendChild(memeColumn);
+            });
+        }
+    </script>
+
+</body>
+</html>
+

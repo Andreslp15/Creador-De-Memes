@@ -9,7 +9,6 @@
 </head>
 <body>
 
-
     <header class="section">
         <div class="container">
             <h1 class="title">Bienvenidos a nuestra página de memes</h1>
@@ -30,132 +29,73 @@
         <section id="todos-los-memes" class="section">
             <div class="container">
                 <h2 class="subtitle">Todos los memes</h2>
-                <div id="memes-list" class="columns is-multiline">
-                    <!-- Aquí se generarán dinámicamente los memes usando JavaScript -->
-                </div>
+                <!-- Cambia el botón por un botón normal -->
+                <a href="memes.html" class="button">Ver todos los memes</a>
             </div>
         </section>
-
+        
         <section id="categorias" class="section">
             <div class="container">
                 <h2 class="subtitle">Categoría de memes (Plantillas)</h2>
+                <!-- Botón para ver plantillas -->
+                <button onclick="fetchPlantillas()" class="button">Ver plantillas</button>
                 <div id="categoria-list" class="columns is-multiline">
                     <!-- Aquí se generarán dinámicamente las categorías (plantillas) usando JavaScript -->
                 </div>
             </div>
-        </section>
+        </section>     
         
     </main>
-
 
     <footer class="footer">
         <div class="content has-text-centered">
             <p>© 2024 Página de Memes. Todos los derechos reservados.</p>
         </div>
     </footer>
-    
 
     <script>
-
-        function response_received(response){
-            return response.json()
-        }
-
-        function parser_data(content) {
-            console.log('Tengo la lista de memes...');
-            const memesList = document.getElementById('memes-list');
-            
-            // Limpiar contenido previo en caso de recarga
-            memesList.innerHTML = '';
+        document.addEventListener('DOMContentLoaded', () => {
+            // Esta función se ejecutará cuando el DOM esté completamente cargado
+        });
     
-            
-            // Iterar sobre cada meme recibido y agregarlo al HTML
-            content.forEach(meme => {
-                const memeColumn = document.createElement('div');
-                memeColumn.classList.add('column', 'is-4'); // Columna de Bulma para ocupar 1/3 del ancho
-        
-                const memeBox = document.createElement('div');
-                memeBox.classList.add('box'); // Box de Bulma para estilizar el meme
-        
-                const imagenElement = document.createElement('img');
-                imagenElement.classList.add('image', 'is-4by3'); // Imagen con relación de aspecto 4:3
-                imagenElement.src = meme.imagen;
-                imagenElement.alt = `Meme ${meme.id}`;
-        
-                const fechaElement = document.createElement('p');
-                fechaElement.classList.add('subtitle', 'is-6');
-                fechaElement.textContent = `Fecha: ${meme.fecha}`;
-        
-                const usuarioElement = document.createElement('p');
-                usuarioElement.classList.add('subtitle', 'is-6');
-                usuarioElement.textContent = `Usuario ID: ${meme.usuario_id}`;
-        
-                memeBox.appendChild(imagenElement);
-                memeBox.appendChild(fechaElement);
-                memeBox.appendChild(usuarioElement);
-        
-                memeColumn.appendChild(memeBox);
-                memesList.appendChild(memeColumn);
-            });
+        function fetchPlantillas() {
+            fetch('http://localhost:5000/plantillas/') // Asegúrate de que la URL sea correcta
+                .then(response => response.json())
+                .then(plantillas => {
+                    displayPlantillas(plantillas);
+                })
+                .catch(error => {
+                    console.error('Error al obtener las plantillas:', error);
+                });
         }
-
-        
-        function parser_plantillas(plantillas) {
-            console.log('Tengo la lista de plantillas...');
+    
+        function displayPlantillas(plantillas) {
             const categoriaList = document.getElementById('categoria-list');
-            
-            // Limpiar contenido previo en caso de recarga
-            categoriaList.innerHTML = '';
-            
-            // Iterar sobre cada plantilla recibida y agregarla al HTML
+            categoriaList.innerHTML = ''; // Limpiar contenido previo
+    
             plantillas.forEach(plantilla => {
                 const plantillaColumn = document.createElement('div');
                 plantillaColumn.classList.add('column', 'is-3'); // Columna de Bulma para ocupar 1/4 del ancho
-        
+    
                 const plantillaBox = document.createElement('div');
                 plantillaBox.classList.add('box'); // Box de Bulma para estilizar la plantilla
-        
+    
                 const imagenElement = document.createElement('img');
-                imagenElement.classList.add('image', 'is-4by3'); // Imagen con relación de aspecto 4:3
-                imagenElement.src = plantilla.imagen;
-                imagenElement.alt = `Plantilla ${plantilla.id}`;
-        
+                imagenElement.classList.add('image', 'is-4by3', 'is-fullwidth');
+                imagenElement.src = plantilla.imagen; // URL de la imagen de la plantilla
+                imagenElement.alt = `Plantilla ${plantilla.id}`; // Alt para accesibilidad
+    
                 const nombreElement = document.createElement('p');
                 nombreElement.classList.add('subtitle', 'is-6');
-                nombreElement.textContent = plantilla.nombre;
-        
+                nombreElement.textContent = plantilla.nombre; // Nombre de la plantilla
+    
                 plantillaBox.appendChild(imagenElement);
                 plantillaBox.appendChild(nombreElement);
-        
+    
                 plantillaColumn.appendChild(plantillaBox);
                 categoriaList.appendChild(plantillaColumn);
             });
         }
-    
-        
-        function request_error(error){
-            console.log('Error:', error);
-        }
-        
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Obtener todas las plantillas (categorías)
-            fetch('http://127.0.0.1:5000/plantillas/')
-                .then(response => response.json())
-                .then(parser_plantillas)
-                .catch(error => {
-                    console.error('Error al obtener plantillas:', error);
-                });
-
-            // Obtener todos los memes
-            fetch('http://127.0.0.1:5000/memes/')
-              .then(response => response.json())
-              .then(parser_data)
-              .catch(error => {
-                console.error('Error obtener los  memes:', error);
-            });
-        });
-
     </script>
     
 </body>

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from models import db, Meme, Plantilla, Usuario
 
@@ -9,10 +9,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app)
 CORS(app, supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE"])
 
-
 @app.route('/')
 def hello_world():
     return 'Hello world!'
+
 
 @app.route('/memes/', methods=['GET'])
 def todos_los_memes():
@@ -37,7 +37,7 @@ def todos_los_memes():
 @app.route('/plantillas/', methods=['GET'])
 def obtener_plantillas():
     try:
-        plantillas = Plantilla.query.all()  # Asume que Plantilla es tu modelo de datos para las plantillas de memes
+        plantillas = Plantilla.query.all()
         plantillas_data = []
         
         for plantilla in plantillas:
@@ -54,6 +54,7 @@ def obtener_plantillas():
     except Exception as error:
         print(f"Error al obtener plantillas de memes: {str(error)}")
         return jsonify({'message': 'Error interno al obtener las plantillas de memes'}), 500
+    
 
 
 @app.route('/memes/<int:meme_id>', methods=['GET'])
@@ -82,7 +83,7 @@ def crear_memes():
         data = request.json
         imagen = data.get('imagen')
         nombre_usuario = data.get('nombre_usuario')
-        correo_electronico = data.get('correo_electronico')  # Corregido: coincidir con el nombre del atributo en el modelo
+        correo_electronico = data.get('correo_electronico')
         contraseña = data.get('contraseña')
         plantilla_id = data.get('plantilla_id')
         nombre_plantilla = data.get('nombre_plantilla')
